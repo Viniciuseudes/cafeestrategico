@@ -1,91 +1,137 @@
-"use client"
+"use client";
 
-import { useState, useMemo } from "react"
-import { motion, AnimatePresence } from "framer-motion"
-import { Calendar } from "@/components/ui/calendar"
-import { ptBR } from "date-fns/locale"
-import { format, isSameDay } from "date-fns"
+import { useState, useMemo } from "react";
+import { motion, AnimatePresence } from "framer-motion";
+import { Calendar } from "@/components/ui/calendar";
+import { ptBR } from "date-fns/locale";
+import { format, isSameDay } from "date-fns";
 import {
   CalendarDays,
   Clock,
   CheckCircle2,
-  CreditCard,
   QrCode,
   ArrowLeft,
-} from "lucide-react"
+  User,
+  Mail,
+  Phone,
+} from "lucide-react";
 
-// Datas e horarios disponiveis
-const AVAILABLE_SCHEDULE: { date: Date; startHour: number; endHour: number }[] = [
-  { date: new Date(2026, 2, 10), startHour: 11, endHour: 15 }, // 10 de marco: 11:00 as 15:00
-  { date: new Date(2026, 2, 11), startHour: 11, endHour: 13 }, // 11 de marco: 11:00 as 13:00
-  { date: new Date(2026, 2, 12), startHour: 16, endHour: 19 }, // 12 de marco: 16:00 as 19:00
-  { date: new Date(2026, 2, 16), startHour: 12, endHour: 17 }, // 16 de marco: 12:00 as 17:00
-]
+// Adicione aqui o link do seu Pix gerado no banco
+const PIX_LINK = "https://nubank.com.br/pagar/seu-link-pix-aqui";
+
+const AVAILABLE_SCHEDULE = [
+  { date: new Date(2026, 2, 10), startHour: 11, endHour: 15 },
+  { date: new Date(2026, 2, 11), startHour: 11, endHour: 13 },
+  { date: new Date(2026, 2, 12), startHour: 16, endHour: 19 },
+  { date: new Date(2026, 2, 16), startHour: 12, endHour: 17 },
+];
 
 function generateTimeSlots(startHour: number, endHour: number): string[] {
-  const slots: string[] = []
+  const slots: string[] = [];
   for (let h = startHour; h < endHour; h++) {
-    slots.push(`${String(h).padStart(2, "0")}:00`)
+    slots.push(`${String(h).padStart(2, "0")}:00`);
   }
-  return slots
+  return slots;
 }
 
 function isAvailableDate(date: Date): boolean {
-  return AVAILABLE_SCHEDULE.some((s) => isSameDay(s.date, date))
+  return AVAILABLE_SCHEDULE.some((s) => isSameDay(s.date, date));
 }
 
 function getTimeSlotsForDate(date: Date): string[] {
-  const schedule = AVAILABLE_SCHEDULE.find((s) => isSameDay(s.date, date))
-  if (!schedule) return []
-  return generateTimeSlots(schedule.startHour, schedule.endHour)
+  const schedule = AVAILABLE_SCHEDULE.find((s) => isSameDay(s.date, date));
+  if (!schedule) return [];
+  return generateTimeSlots(schedule.startHour, schedule.endHour);
 }
 
-type Step = "date" | "time" | "checkout"
+type Step = "date" | "time" | "checkout";
 
 export function BookingSection() {
-  const [selectedDate, setSelectedDate] = useState<Date | undefined>()
-  const [selectedTime, setSelectedTime] = useState<string | null>(null)
-  const [currentStep, setCurrentStep] = useState<Step>("date")
-  const [isConfirmed, setIsConfirmed] = useState(false)
+  const [selectedDate, setSelectedDate] = useState<Date | undefined>();
+  const [selectedTime, setSelectedTime] = useState<string | null>(null);
+  const [currentStep, setCurrentStep] = useState<Step>("date");
+  const [isConfirmed, setIsConfirmed] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+
+  // Estado para os dados do usuário
+  const [formData, setFormData] = useState({
+    name: "",
+    email: "",
+    whatsapp: "",
+  });
 
   const timeSlots = useMemo(() => {
-    if (!selectedDate) return []
-    return getTimeSlotsForDate(selectedDate)
-  }, [selectedDate])
+    if (!selectedDate) return [];
+    return getTimeSlotsForDate(selectedDate);
+  }, [selectedDate]);
 
   const handleDateSelect = (date: Date | undefined) => {
-    setSelectedDate(date)
+    setSelectedDate(date);
     if (date) {
-      setSelectedTime(null)
-      setCurrentStep("time")
+      setSelectedTime(null);
+      setCurrentStep("time");
     }
-  }
+  };
 
   const handleTimeSelect = (time: string) => {
-    setSelectedTime(time)
-    setCurrentStep("checkout")
-  }
+    setSelectedTime(time);
+    setCurrentStep("checkout");
+  };
 
-  const handleConfirm = () => {
-    setIsConfirmed(true)
-  }
+  const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const handleConfirm = async () => {
+    if (!formData.name || !formData.email || !formData.whatsapp) {
+      alert("Por favor, preencha todos os dados.");
+      return;
+    }
+
+    setIsLoading(true);
+
+    try {
+      // Chamada para a API/Server Action de envio de e-mail
+      const response = await fetch("/api/send-booking", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          ...formData,
+          date: format(selectedDate!, "dd/MM/yyyy"),
+          time: selectedTime,
+        }),
+      });
+
+      if (response.ok) {
+        setIsConfirmed(true);
+      } else {
+        alert("Erro ao enviar o agendamento. Tente novamente.");
+      }
+    } catch (error) {
+      console.error(error);
+      alert("Erro de conexão.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const handleReset = () => {
-    setSelectedDate(undefined)
-    setSelectedTime(null)
-    setCurrentStep("date")
-    setIsConfirmed(false)
-  }
+    setSelectedDate(undefined);
+    setSelectedTime(null);
+    setFormData({ name: "", email: "", whatsapp: "" });
+    setCurrentStep("date");
+    setIsConfirmed(false);
+  };
 
   const goBack = () => {
     if (currentStep === "checkout") {
-      setSelectedTime(null)
-      setCurrentStep("time")
+      setCurrentStep("time");
     } else if (currentStep === "time") {
-      setCurrentStep("date")
+      setCurrentStep("date");
     }
-  }
+  };
 
+  // ... (Mantenha o código do stepIndicator igual ao original) ...
   const stepIndicator = (
     <div className="flex items-center justify-center gap-3 mb-10">
       {(["date", "time", "checkout"] as Step[]).map((step, i) => (
@@ -117,7 +163,7 @@ export function BookingSection() {
         </div>
       ))}
     </div>
-  )
+  );
 
   if (isConfirmed) {
     return (
@@ -133,18 +179,36 @@ export function BookingSection() {
               <CheckCircle2 className="w-8 h-8 text-emerald-400" />
             </div>
             <h3 className="font-serif text-3xl text-foreground mb-4">
-              Reserva Confirmada
+              Reserva Solicitada!
             </h3>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              {"Sua sessao esta agendada para "}
-              <span className="text-gold font-medium">
-                {selectedDate && format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}
-              </span>{" "}
-              {"as "}
-              <span className="text-gold font-medium">{selectedTime}</span>.
+              Sua sessão para{" "}
+              <strong className="text-gold">
+                {selectedDate &&
+                  format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}{" "}
+                às {selectedTime}
+              </strong>{" "}
+              foi pré-agendada.
             </p>
+
+            <div className="bg-secondary/50 p-6 rounded-xl border border-gold/20 mb-8">
+              <p className="text-sm text-foreground mb-4">
+                Para confirmar definitivamente, realize o pagamento via Pix
+                clicando no botão abaixo:
+              </p>
+              <a
+                href={PIX_LINK}
+                target="_blank"
+                rel="noopener noreferrer"
+                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+              >
+                <QrCode className="w-5 h-5" />
+                Abrir Link de Pagamento Pix
+              </a>
+            </div>
+
             <p className="text-muted-foreground text-sm mb-8">
-              Voce recebera um e-mail com todos os detalhes e instrucoes de pagamento.
+              Enviamos os detalhes para o seu e-mail: {formData.email}.
             </p>
             <button
               onClick={handleReset}
@@ -155,7 +219,7 @@ export function BookingSection() {
           </motion.div>
         </div>
       </section>
-    )
+    );
   }
 
   return (
@@ -180,6 +244,7 @@ export function BookingSection() {
         {stepIndicator}
 
         <AnimatePresence mode="wait">
+          {/* ... Mantenha os steps 'date' e 'time' originais aqui ... */}
           {currentStep === "date" && (
             <motion.div
               key="date"
@@ -206,13 +271,12 @@ export function BookingSection() {
                   className="[--cell-size:--spacing(10)] md:[--cell-size:--spacing(12)]"
                   classNames={{
                     root: "w-fit bg-transparent",
-                    month_caption: "flex items-center justify-center h-(--cell-size) w-full px-(--cell-size)",
-                    weekday: "text-gold/60 rounded-md flex-1 font-normal text-[0.8rem] select-none",
+                    month_caption:
+                      "flex items-center justify-center h-(--cell-size) w-full px-(--cell-size)",
+                    weekday:
+                      "text-gold/60 rounded-md flex-1 font-normal text-[0.8rem] select-none",
                   }}
                 />
-                <p className="text-muted-foreground text-xs text-center mt-4">
-                  Apenas datas com disponibilidade podem ser selecionadas
-                </p>
               </div>
             </motion.div>
           )}
@@ -240,11 +304,7 @@ export function BookingSection() {
                     Selecione o horario
                   </h3>
                 </div>
-                <p className="text-muted-foreground text-sm mb-6">
-                  {selectedDate &&
-                    format(selectedDate, "EEEE, dd 'de' MMMM", { locale: ptBR })}
-                </p>
-                <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
                   {timeSlots.map((time) => (
                     <button
                       key={time}
@@ -278,34 +338,66 @@ export function BookingSection() {
                   className="flex items-center gap-2 text-muted-foreground hover:text-gold text-sm mb-6 transition-colors"
                 >
                   <ArrowLeft className="w-4 h-4" />
-                  Alterar horario
+                  Alterar horário
                 </button>
 
-                <h3 className="font-serif text-2xl text-foreground mb-8">
-                  Resumo da Reserva
+                <h3 className="font-serif text-2xl text-foreground mb-6">
+                  Seus Dados
                 </h3>
 
+                {/* Formulário de Contato */}
                 <div className="space-y-4 mb-8">
-                  <div className="flex items-center justify-between py-3 border-b border-border">
-                    <span className="text-muted-foreground flex items-center gap-2">
-                      <CalendarDays className="w-4 h-4" />
-                      Data
-                    </span>
+                  <div className="space-y-2">
+                    <label className="text-sm text-muted-foreground flex items-center gap-2">
+                      <User className="w-4 h-4" /> Nome Completo
+                    </label>
+                    <input
+                      type="text"
+                      name="name"
+                      value={formData.name}
+                      onChange={handleInputChange}
+                      className="w-full bg-background border border-border rounded-lg p-3 text-foreground focus:border-gold outline-none transition-colors"
+                      placeholder="Ex: João Silva"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Mail className="w-4 h-4" /> E-mail
+                    </label>
+                    <input
+                      type="email"
+                      name="email"
+                      value={formData.email}
+                      onChange={handleInputChange}
+                      className="w-full bg-background border border-border rounded-lg p-3 text-foreground focus:border-gold outline-none transition-colors"
+                      placeholder="joao@exemplo.com"
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <label className="text-sm text-muted-foreground flex items-center gap-2">
+                      <Phone className="w-4 h-4" /> WhatsApp
+                    </label>
+                    <input
+                      type="text"
+                      name="whatsapp"
+                      value={formData.whatsapp}
+                      onChange={handleInputChange}
+                      className="w-full bg-background border border-border rounded-lg p-3 text-foreground focus:border-gold outline-none transition-colors"
+                      placeholder="(00) 00000-0000"
+                    />
+                  </div>
+                </div>
+
+                <div className="border-t border-border pt-6 mb-8">
+                  <div className="flex items-center justify-between py-2">
+                    <span className="text-muted-foreground">Data/Hora</span>
                     <span className="text-foreground font-medium">
                       {selectedDate &&
-                        format(selectedDate, "dd/MM/yyyy", { locale: ptBR })}
+                        format(selectedDate, "dd/MM", { locale: ptBR })}{" "}
+                      às {selectedTime}
                     </span>
                   </div>
-                  <div className="flex items-center justify-between py-3 border-b border-border">
-                    <span className="text-muted-foreground flex items-center gap-2">
-                      <Clock className="w-4 h-4" />
-                      Horario
-                    </span>
-                    <span className="text-foreground font-medium">
-                      {selectedTime}
-                    </span>
-                  </div>
-                  <div className="flex items-center justify-between py-4">
+                  <div className="flex items-center justify-between py-2">
                     <span className="text-foreground text-lg font-serif">
                       Total
                     </span>
@@ -315,27 +407,19 @@ export function BookingSection() {
                   </div>
                 </div>
 
-                <div className="space-y-3">
-                  <button
-                    onClick={handleConfirm}
-                    className="w-full shimmer-btn text-background font-semibold py-4 rounded-lg text-lg tracking-wide transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(184,149,106,0.3)] flex items-center justify-center gap-3"
-                  >
-                    <QrCode className="w-5 h-5" />
-                    Finalizar via Pix
-                  </button>
-                  <button
-                    onClick={handleConfirm}
-                    className="w-full border border-gold/30 text-gold font-semibold py-4 rounded-lg text-lg tracking-wide transition-all duration-300 hover:bg-gold/5 hover:border-gold/50 flex items-center justify-center gap-3"
-                  >
-                    <CreditCard className="w-5 h-5" />
-                    Finalizar via Cartao
-                  </button>
-                </div>
+                <button
+                  onClick={handleConfirm}
+                  disabled={isLoading}
+                  className="w-full shimmer-btn text-background font-semibold py-4 rounded-lg text-lg tracking-wide transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(184,149,106,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
+                >
+                  <QrCode className="w-5 h-5" />
+                  {isLoading ? "Processando..." : "Confirmar e Pagar via Pix"}
+                </button>
               </div>
             </motion.div>
           )}
         </AnimatePresence>
       </div>
     </section>
-  )
+  );
 }
