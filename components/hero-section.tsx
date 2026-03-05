@@ -1,13 +1,15 @@
-"use client"
+"use client";
 
-import { motion } from "framer-motion"
-import { Coffee } from "lucide-react"
-import Image from "next/image"
+import { motion } from "framer-motion";
+import { Coffee } from "lucide-react";
+import Image from "next/image";
 
 export function HeroSection() {
   const scrollToBooking = () => {
-    document.getElementById("agendamento")?.scrollIntoView({ behavior: "smooth" })
-  }
+    document
+      .getElementById("agendamento")
+      ?.scrollIntoView({ behavior: "smooth" });
+  };
 
   return (
     <section className="relative px-4 pt-12 pb-16 md:pt-20 md:pb-24">
@@ -57,9 +59,11 @@ export function HeroSection() {
               transition={{ duration: 0.8, delay: 0.3 }}
               className="font-serif text-4xl md:text-5xl lg:text-6xl font-medium tracking-tight leading-[1.15] text-balance"
             >
-              <span className="text-gold-gradient italic">Cafe Estrategico</span>
+              <span className="text-gold-gradient italic">
+                Café Estratégico
+              </span>
               <br />
-              <span className="text-foreground">com Mlau Fontes</span>
+              <span className="text-foreground">com Malu Fontes</span>
             </motion.h1>
 
             <motion.p
@@ -68,7 +72,8 @@ export function HeroSection() {
               transition={{ duration: 0.7, delay: 0.5 }}
               className="mt-5 text-muted-foreground text-base md:text-lg max-w-md leading-relaxed text-pretty"
             >
-              Reserve seu horario e transforme sua estrategia em uma conversa exclusiva.
+              Uma conversa estratégica para transformar reflexão em decisões
+              para os próximos 12 meses..
             </motion.p>
 
             <motion.div
@@ -91,5 +96,5 @@ export function HeroSection() {
         </div>
       </div>
     </section>
-  )
+  );
 }
