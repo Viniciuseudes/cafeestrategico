@@ -14,17 +14,21 @@ import {
   User,
   Mail,
   Phone,
+  Copy,
 } from "lucide-react";
 
-// Adicione aqui o link do seu Pix gerado no banco
-const PIX_LINK = "https://nubank.com.br/pagar/seu-link-pix-aqui";
+// O teu código Pix Copia e Cola do Banco do Brasil
+const PIX_PAYLOAD =
+  "00020126720014br.gov.bcb.pix0114124749050001820232Cafe Estrategico com Malu Fontes5204000053039865406500.005802BR5918IDEALE CONSULTORIA6005NATAL62290525ciekYz7mCDZcI9VHLOZ4fxYY96304D698";
 
-const AVAILABLE_SCHEDULE = [
-  { date: new Date(2026, 2, 10), startHour: 11, endHour: 15 },
-  { date: new Date(2026, 2, 11), startHour: 11, endHour: 13 },
-  { date: new Date(2026, 2, 12), startHour: 16, endHour: 19 },
-  { date: new Date(2026, 2, 16), startHour: 12, endHour: 17 },
-];
+// Datas e horários disponíveis
+const AVAILABLE_SCHEDULE: { date: Date; startHour: number; endHour: number }[] =
+  [
+    { date: new Date(2026, 2, 10), startHour: 11, endHour: 15 }, // 10 de março
+    { date: new Date(2026, 2, 11), startHour: 11, endHour: 13 }, // 11 de março
+    { date: new Date(2026, 2, 12), startHour: 16, endHour: 19 }, // 12 de março
+    { date: new Date(2026, 2, 16), startHour: 12, endHour: 17 }, // 16 de março
+  ];
 
 function generateTimeSlots(startHour: number, endHour: number): string[] {
   const slots: string[] = [];
@@ -53,7 +57,7 @@ export function BookingSection() {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Estado para os dados do usuário
+  // Estado para os dados do utilizador
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -84,14 +88,13 @@ export function BookingSection() {
 
   const handleConfirm = async () => {
     if (!formData.name || !formData.email || !formData.whatsapp) {
-      alert("Por favor, preencha todos os dados.");
+      alert("Por favor, preenche todos os dados para continuar.");
       return;
     }
 
     setIsLoading(true);
 
     try {
-      // Chamada para a API/Server Action de envio de e-mail
       const response = await fetch("/api/send-booking", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -105,11 +108,11 @@ export function BookingSection() {
       if (response.ok) {
         setIsConfirmed(true);
       } else {
-        alert("Erro ao enviar o agendamento. Tente novamente.");
+        alert("Ocorreu um erro ao enviar o agendamento. Tenta novamente.");
       }
     } catch (error) {
       console.error(error);
-      alert("Erro de conexão.");
+      alert("Erro de ligação. Verifica a tua internet.");
     } finally {
       setIsLoading(false);
     }
@@ -131,7 +134,13 @@ export function BookingSection() {
     }
   };
 
-  // ... (Mantenha o código do stepIndicator igual ao original) ...
+  const handleCopyPix = () => {
+    navigator.clipboard.writeText(PIX_PAYLOAD);
+    alert(
+      "Código Pix copiado com sucesso! Abre a aplicação do teu banco e escolhe a opção 'Pix Copia e Cola'.",
+    );
+  };
+
   const stepIndicator = (
     <div className="flex items-center justify-center gap-3 mb-10">
       {(["date", "time", "checkout"] as Step[]).map((step, i) => (
@@ -173,7 +182,7 @@ export function BookingSection() {
             initial={{ opacity: 0, scale: 0.9 }}
             animate={{ opacity: 1, scale: 1 }}
             transition={{ duration: 0.5 }}
-            className="glass-gold rounded-2xl p-12 glow-gold"
+            className="glass-gold rounded-2xl p-8 md:p-12 glow-gold"
           >
             <div className="w-16 h-16 rounded-full bg-emerald-500/20 flex items-center justify-center mx-auto mb-6">
               <CheckCircle2 className="w-8 h-8 text-emerald-400" />
@@ -182,7 +191,7 @@ export function BookingSection() {
               Reserva Solicitada!
             </h3>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              Sua sessão para{" "}
+              A tua sessão para{" "}
               <strong className="text-gold">
                 {selectedDate &&
                   format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}{" "}
@@ -192,23 +201,29 @@ export function BookingSection() {
             </p>
 
             <div className="bg-secondary/50 p-6 rounded-xl border border-gold/20 mb-8">
-              <p className="text-sm text-foreground mb-4">
-                Para confirmar definitivamente, realize o pagamento via Pix
-                clicando no botão abaixo:
+              <p className="text-sm text-foreground mb-4 font-medium">
+                Para confirmares definitivamente, realiza o pagamento via Pix
+                Copia e Cola:
               </p>
-              <a
-                href={PIX_LINK}
-                target="_blank"
-                rel="noopener noreferrer"
-                className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
-              >
-                <QrCode className="w-5 h-5" />
-                Abrir Link de Pagamento Pix
-              </a>
+
+              <div className="flex flex-col gap-3">
+                <code className="text-xs bg-background p-3 rounded-md border border-border break-all text-left text-muted-foreground select-all">
+                  {PIX_PAYLOAD}
+                </code>
+
+                <button
+                  onClick={handleCopyPix}
+                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                >
+                  <Copy className="w-5 h-5" />
+                  Copiar Código Pix
+                </button>
+              </div>
             </div>
 
             <p className="text-muted-foreground text-sm mb-8">
-              Enviamos os detalhes para o seu e-mail: {formData.email}.
+              Enviámos os detalhes para o teu e-mail:{" "}
+              <strong className="text-foreground">{formData.email}</strong>.
             </p>
             <button
               onClick={handleReset}
@@ -237,14 +252,14 @@ export function BookingSection() {
           className="text-center mb-12"
         >
           <h2 className="font-serif text-3xl md:text-4xl text-foreground tracking-tight text-balance">
-            Escolha sua <span className="text-gold-gradient italic">data</span>
+            Escolhe a tua{" "}
+            <span className="text-gold-gradient italic">data</span>
           </h2>
         </motion.div>
 
         {stepIndicator}
 
         <AnimatePresence mode="wait">
-          {/* ... Mantenha os steps 'date' e 'time' originais aqui ... */}
           {currentStep === "date" && (
             <motion.div
               key="date"
@@ -258,7 +273,7 @@ export function BookingSection() {
                 <div className="flex items-center gap-3 mb-6">
                   <CalendarDays className="w-5 h-5 text-gold" />
                   <h3 className="font-serif text-xl text-foreground">
-                    Selecione a data
+                    Seleciona a data
                   </h3>
                 </div>
                 <Calendar
@@ -301,7 +316,7 @@ export function BookingSection() {
                 <div className="flex items-center gap-3 mb-2">
                   <Clock className="w-5 h-5 text-gold" />
                   <h3 className="font-serif text-xl text-foreground">
-                    Selecione o horario
+                    Seleciona o horário
                   </h3>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
@@ -342,10 +357,9 @@ export function BookingSection() {
                 </button>
 
                 <h3 className="font-serif text-2xl text-foreground mb-6">
-                  Seus Dados
+                  Os Teus Dados
                 </h3>
 
-                {/* Formulário de Contato */}
                 <div className="space-y-4 mb-8">
                   <div className="space-y-2">
                     <label className="text-sm text-muted-foreground flex items-center gap-2">
@@ -413,7 +427,7 @@ export function BookingSection() {
                   className="w-full shimmer-btn text-background font-semibold py-4 rounded-lg text-lg tracking-wide transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(184,149,106,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <QrCode className="w-5 h-5" />
-                  {isLoading ? "Processando..." : "Confirmar e Pagar via Pix"}
+                  {isLoading ? "A Processar..." : "Confirmar e Pagar via Pix"}
                 </button>
               </div>
             </motion.div>
