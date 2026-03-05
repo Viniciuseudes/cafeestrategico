@@ -15,9 +15,10 @@ import {
   Mail,
   Phone,
   Copy,
+  Check,
 } from "lucide-react";
 
-// O teu código Pix Copia e Cola do Banco do Brasil
+// O seu código Pix Copia e Cola do Banco do Brasil
 const PIX_PAYLOAD =
   "00020126720014br.gov.bcb.pix0114124749050001820232Cafe Estrategico com Malu Fontes5204000053039865406500.005802BR5918IDEALE CONSULTORIA6005NATAL62290525ciekYz7mCDZcI9VHLOZ4fxYY96304D698";
 
@@ -57,7 +58,7 @@ export function BookingSection() {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Estado para os dados do utilizador
+  // Estado para os dados do usuário
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -88,7 +89,7 @@ export function BookingSection() {
 
   const handleConfirm = async () => {
     if (!formData.name || !formData.email || !formData.whatsapp) {
-      alert("Por favor, preenche todos os dados para continuar.");
+      alert("Por favor, preencha todos os dados para continuar.");
       return;
     }
 
@@ -108,11 +109,11 @@ export function BookingSection() {
       if (response.ok) {
         setIsConfirmed(true);
       } else {
-        alert("Ocorreu um erro ao enviar o agendamento. Tenta novamente.");
+        alert("Ocorreu um erro ao enviar o agendamento. Tente novamente.");
       }
     } catch (error) {
       console.error(error);
-      alert("Erro de ligação. Verifica a tua internet.");
+      alert("Erro de conexão. Verifique sua internet.");
     } finally {
       setIsLoading(false);
     }
@@ -137,7 +138,7 @@ export function BookingSection() {
   const handleCopyPix = () => {
     navigator.clipboard.writeText(PIX_PAYLOAD);
     alert(
-      "Código Pix copiado com sucesso! Abre a aplicação do teu banco e escolhe a opção 'Pix Copia e Cola'.",
+      "Código Pix copiado com sucesso! Abra o app do seu banco e escolha a opção 'Pix Copia e Cola'.",
     );
   };
 
@@ -191,7 +192,7 @@ export function BookingSection() {
               Reserva Solicitada!
             </h3>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              A tua sessão para{" "}
+              Sua sessão para{" "}
               <strong className="text-gold">
                 {selectedDate &&
                   format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}{" "}
@@ -202,7 +203,7 @@ export function BookingSection() {
 
             <div className="bg-secondary/50 p-6 rounded-xl border border-gold/20 mb-8">
               <p className="text-sm text-foreground mb-4 font-medium">
-                Para confirmares definitivamente, realiza o pagamento via Pix
+                Para confirmar definitivamente, realize o pagamento via Pix
                 Copia e Cola:
               </p>
 
@@ -222,7 +223,7 @@ export function BookingSection() {
             </div>
 
             <p className="text-muted-foreground text-sm mb-8">
-              Enviámos os detalhes para o teu e-mail:{" "}
+              Enviamos os detalhes para o seu e-mail:{" "}
               <strong className="text-foreground">{formData.email}</strong>.
             </p>
             <button
@@ -244,16 +245,47 @@ export function BookingSection() {
       </div>
 
       <div className="max-w-4xl mx-auto">
+        {/* Bloco de Posicionamento Premium */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true, margin: "-100px" }}
           transition={{ duration: 0.7 }}
+          className="max-w-3xl mx-auto mb-16"
+        >
+          <div className="glass-gold rounded-2xl p-8 border border-gold/20 shadow-[0_0_30px_rgba(184,149,106,0.05)]">
+            <h3 className="text-xl md:text-2xl font-serif text-foreground mb-6 text-center">
+              Para líderes que desejam:
+            </h3>
+            <ul className="grid grid-cols-1 md:grid-cols-2 gap-5">
+              {[
+                "Inovar e reposicionar seus negócios com visão estratégica",
+                "Alinhar carreira, vida e ambição com mais intencionalidade",
+                "Tomar decisões estratégicas para os próximos 12 meses",
+                "Ganhar clareza sobre dinheiro, ritmo de trabalho e prioridades",
+              ].map((item, i) => (
+                <li key={i} className="flex items-start gap-3">
+                  <div className="min-w-6 h-6 rounded-full bg-gold/10 flex items-center justify-center mt-0.5 border border-gold/20">
+                    <Check className="w-3.5 h-3.5 text-gold" />
+                  </div>
+                  <span className="text-muted-foreground text-sm md:text-base leading-relaxed">
+                    {item}
+                  </span>
+                </li>
+              ))}
+            </ul>
+          </div>
+        </motion.div>
+
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          viewport={{ once: true, margin: "-100px" }}
+          transition={{ duration: 0.7, delay: 0.2 }}
           className="text-center mb-12"
         >
           <h2 className="font-serif text-3xl md:text-4xl text-foreground tracking-tight text-balance">
-            Escolhe a tua{" "}
-            <span className="text-gold-gradient italic">data</span>
+            Escolha sua <span className="text-gold-gradient italic">data</span>
           </h2>
         </motion.div>
 
@@ -273,7 +305,7 @@ export function BookingSection() {
                 <div className="flex items-center gap-3 mb-6">
                   <CalendarDays className="w-5 h-5 text-gold" />
                   <h3 className="font-serif text-xl text-foreground">
-                    Seleciona a data
+                    Selecione a data
                   </h3>
                 </div>
                 <Calendar
@@ -316,7 +348,7 @@ export function BookingSection() {
                 <div className="flex items-center gap-3 mb-2">
                   <Clock className="w-5 h-5 text-gold" />
                   <h3 className="font-serif text-xl text-foreground">
-                    Seleciona o horário
+                    Selecione o horário
                   </h3>
                 </div>
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
@@ -357,7 +389,7 @@ export function BookingSection() {
                 </button>
 
                 <h3 className="font-serif text-2xl text-foreground mb-6">
-                  Os Teus Dados
+                  Seus Dados
                 </h3>
 
                 <div className="space-y-4 mb-8">
@@ -403,7 +435,7 @@ export function BookingSection() {
                 </div>
 
                 <div className="border-t border-border pt-6 mb-8">
-                  <div className="flex items-center justify-between py-2">
+                  <div className="flex items-center justify-between py-2 mb-2">
                     <span className="text-muted-foreground">Data/Hora</span>
                     <span className="text-foreground font-medium">
                       {selectedDate &&
@@ -415,9 +447,17 @@ export function BookingSection() {
                     <span className="text-foreground text-lg font-serif">
                       Total
                     </span>
-                    <span className="text-gold text-2xl font-serif font-semibold">
-                      R$ 500,00
-                    </span>
+                    <div className="text-right">
+                      <span className="text-gold text-2xl font-serif font-semibold block">
+                        R$ 500,00
+                      </span>
+                    </div>
+                  </div>
+
+                  {/* Detalhes de Duração e Formato logo abaixo do valor */}
+                  <div className="flex flex-col items-end gap-1 mt-1 text-sm text-muted-foreground">
+                    <span>Duração: 1h</span>
+                    <span>Formato: online ou presencial (café)</span>
                   </div>
                 </div>
 
@@ -427,7 +467,7 @@ export function BookingSection() {
                   className="w-full shimmer-btn text-background font-semibold py-4 rounded-lg text-lg tracking-wide transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(184,149,106,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
                   <QrCode className="w-5 h-5" />
-                  {isLoading ? "A Processar..." : "Confirmar e Pagar via Pix"}
+                  {isLoading ? "Processando..." : "Confirmar e Pagar via Pix"}
                 </button>
               </div>
             </motion.div>
