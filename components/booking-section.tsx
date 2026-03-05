@@ -285,7 +285,8 @@ export function BookingSection() {
           className="text-center mb-12"
         >
           <h2 className="font-serif text-3xl md:text-4xl text-foreground tracking-tight text-balance">
-            Escolha sua <span className="text-gold-gradient italic">data</span>
+            Escolha seu{" "}
+            <span className="text-gold-gradient italic">horário</span>
           </h2>
         </motion.div>
 
@@ -445,7 +446,7 @@ export function BookingSection() {
                   </div>
                   <div className="flex items-center justify-between py-2">
                     <span className="text-foreground text-lg font-serif">
-                      Total
+                      Investimento
                     </span>
                     <div className="text-right">
                       <span className="text-gold text-2xl font-serif font-semibold block">

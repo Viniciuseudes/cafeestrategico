@@ -86,10 +86,10 @@ export function HeroSection() {
                 onClick={scrollToBooking}
                 className="shimmer-btn text-background font-semibold px-8 py-3.5 rounded-lg text-base tracking-wide transition-all duration-300 hover:scale-105 hover:shadow-[0_0_40px_rgba(184,149,106,0.3)]"
               >
-                Agendar agora
+                Escolher meu horário
               </button>
               <span className="text-gold font-serif text-2xl font-semibold">
-                R$ 500
+                Investimento: R$ 500
               </span>
             </motion.div>
           </div>
