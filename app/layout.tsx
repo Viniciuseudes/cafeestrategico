@@ -14,7 +14,7 @@ const playfair = Playfair_Display({
 })
 
 export const metadata: Metadata = {
-  title: 'Coffee Break Mentorship | Encontro Estrategico Exclusivo',
+  title: 'Café com Malu Fontes| Encontro Estrategico Exclusivo',
   description:
     'Reserve seu lugar em uma experiencia exclusiva de mentoria e networking premium. Um cafe estrategico por R$500.',
   generator: 'v0.app',
