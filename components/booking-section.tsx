@@ -25,10 +25,9 @@ const PIX_PAYLOAD =
 // Datas e horários disponíveis
 const AVAILABLE_SCHEDULE: { date: Date; startHour: number; endHour: number }[] =
   [
-    { date: new Date(2026, 2, 10), startHour: 11, endHour: 15 }, // 10 de março
-    { date: new Date(2026, 2, 11), startHour: 11, endHour: 13 }, // 11 de março
-    { date: new Date(2026, 2, 12), startHour: 16, endHour: 19 }, // 12 de março
-    { date: new Date(2026, 2, 16), startHour: 12, endHour: 17 }, // 16 de março
+    { date: new Date(2026, 3, 1), startHour: 13, endHour: 14 }, // 01 de Abril (13:00)
+    { date: new Date(2026, 3, 2), startHour: 10, endHour: 11 }, // 02 de Abril (10:00)
+    { date: new Date(2026, 3, 2), startHour: 14, endHour: 17 }, // 02 de Abril (14:00, 15:00, 16:00)
   ];
 
 function generateTimeSlots(startHour: number, endHour: number): string[] {
@@ -44,9 +43,12 @@ function isAvailableDate(date: Date): boolean {
 }
 
 function getTimeSlotsForDate(date: Date): string[] {
-  const schedule = AVAILABLE_SCHEDULE.find((s) => isSameDay(s.date, date));
-  if (!schedule) return [];
-  return generateTimeSlots(schedule.startHour, schedule.endHour);
+  const schedules = AVAILABLE_SCHEDULE.filter((s) => isSameDay(s.date, date));
+  if (schedules.length === 0) return [];
+
+  return schedules.flatMap((schedule) =>
+    generateTimeSlots(schedule.startHour, schedule.endHour),
+  );
 }
 
 type Step = "date" | "time" | "checkout";
@@ -58,7 +60,7 @@ export function BookingSection() {
   const [isConfirmed, setIsConfirmed] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Estado para os dados do usuário
+  // Estado para os dados do utilizador
   const [formData, setFormData] = useState({
     name: "",
     email: "",
@@ -113,7 +115,7 @@ export function BookingSection() {
       }
     } catch (error) {
       console.error(error);
-      alert("Erro de conexão. Verifique sua internet.");
+      alert("Erro de conexão. Verifique a sua internet.");
     } finally {
       setIsLoading(false);
     }
@@ -138,7 +140,7 @@ export function BookingSection() {
   const handleCopyPix = () => {
     navigator.clipboard.writeText(PIX_PAYLOAD);
     alert(
-      "Código Pix copiado com sucesso! Abra o app do seu banco e escolha a opção 'Pix Copia e Cola'.",
+      "Código Pix copiado com sucesso! Abra a app do seu banco e escolha a opção 'Pix Copia e Cola'.",
     );
   };
 
@@ -192,7 +194,7 @@ export function BookingSection() {
               Reserva Solicitada!
             </h3>
             <p className="text-muted-foreground leading-relaxed mb-6">
-              Sua sessão para{" "}
+              A sua sessão para{" "}
               <strong className="text-gold">
                 {selectedDate &&
                   format(selectedDate, "dd 'de' MMMM", { locale: ptBR })}{" "}
@@ -314,7 +316,7 @@ export function BookingSection() {
                   selected={selectedDate}
                   onSelect={handleDateSelect}
                   locale={ptBR}
-                  defaultMonth={new Date(2026, 2)}
+                  defaultMonth={new Date(2026, 3)}
                   disabled={(date) => !isAvailableDate(date)}
                   className="[--cell-size:--spacing(10)] md:[--cell-size:--spacing(12)]"
                   classNames={{
