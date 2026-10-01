@@ -22,12 +22,21 @@ import {
 const PIX_PAYLOAD =
   "00020126720014br.gov.bcb.pix0114124749050001820232Cafe Estrategico com Malu Fontes5204000053039865406500.005802BR5918IDEALE CONSULTORIA6005NATAL62290525ciekYz7mCDZcI9VHLOZ4fxYY96304D698";
 
-// Datas e horários disponíveis
+// Datas e horários disponíveis em Outubro de 2026
 const AVAILABLE_SCHEDULE: { date: Date; startHour: number; endHour: number }[] =
   [
-    { date: new Date(2026, 3, 1), startHour: 13, endHour: 14 }, // 01 de Abril (13:00)
-    { date: new Date(2026, 3, 2), startHour: 10, endHour: 11 }, // 02 de Abril (10:00)
-    { date: new Date(2026, 3, 2), startHour: 14, endHour: 17 }, // 02 de Abril (14:00, 15:00, 16:00)
+    // Terça-feira, 06 de Outubro de 2026 (11h às 13h, 14h às 16h)
+    { date: new Date(2026, 9, 6), startHour: 11, endHour: 13 }, 
+    { date: new Date(2026, 9, 6), startHour: 14, endHour: 16 }, 
+
+    // Quarta-feira, 07 de Outubro de 2026 (09h às 11h)
+    { date: new Date(2026, 9, 7), startHour: 9, endHour: 11 },  
+
+    // Terça-feira, 20 de Outubro de 2026 (09h em diante -> configurado até 18h)
+    { date: new Date(2026, 9, 20), startHour: 9, endHour: 18 },
+
+    // Quarta-feira, 21 de Outubro de 2026 (13h às 18h)
+    { date: new Date(2026, 9, 21), startHour: 13, endHour: 18 },
   ];
 
 function generateTimeSlots(startHour: number, endHour: number): string[] {
@@ -316,7 +325,7 @@ export function BookingSection() {
                   selected={selectedDate}
                   onSelect={handleDateSelect}
                   locale={ptBR}
-                  defaultMonth={new Date(2026, 3)}
+                  defaultMonth={new Date(2026, 9)} // Abre diretamente em Outubro (9)
                   disabled={(date) => !isAvailableDate(date)}
                   className="[--cell-size:--spacing(10)] md:[--cell-size:--spacing(12)]"
                   classNames={{
