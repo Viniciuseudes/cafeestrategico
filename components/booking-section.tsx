@@ -23,26 +23,42 @@ const PIX_PAYLOAD =
   "00020126720014br.gov.bcb.pix0114124749050001820232Cafe Estrategico com Malu Fontes5204000053039865406500.005802BR5918IDEALE CONSULTORIA6005NATAL62290525ciekYz7mCDZcI9VHLOZ4fxYY96304D698";
 
 // Datas e horários disponíveis em Outubro de 2026
-const AVAILABLE_SCHEDULE: { date: Date; startHour: number; endHour: number }[] =
-  [
-    // Terça-feira, 06 de Outubro de 2026 (11h às 13h, 14h às 16h)
-    { date: new Date(2026, 9, 6), startHour: 11, endHour: 13 }, 
-    { date: new Date(2026, 9, 6), startHour: 14, endHour: 16 }, 
+// Adicionamos 'interval' opcional para suportar agendamentos de 30 min
+const AVAILABLE_SCHEDULE: {
+  date: Date;
+  startHour: number;
+  endHour: number;
+  interval?: number;
+}[] = [
+  // Terça-feira, 06 de Outubro de 2026 (11h às 13h, 14h às 16h)
+  { date: new Date(2026, 9, 6), startHour: 11, endHour: 13 },
+  { date: new Date(2026, 9, 6), startHour: 14, endHour: 16 },
 
-    // Quarta-feira, 07 de Outubro de 2026 (09h às 11h)
-    { date: new Date(2026, 9, 7), startHour: 9, endHour: 11 },  
+  // Quarta-feira, 07 de Outubro de 2026 (09h às 11h)
+  { date: new Date(2026, 9, 7), startHour: 9, endHour: 11 },
 
-    // Terça-feira, 20 de Outubro de 2026 (09h em diante -> configurado até 18h)
-    { date: new Date(2026, 9, 20), startHour: 9, endHour: 18 },
+  // NOVA DATA: 14 de Outubro de 2026 (10h às 17h, de 30 em 30 minutos)
+  { date: new Date(2026, 9, 14), startHour: 10, endHour: 17, interval: 30 },
 
-    // Quarta-feira, 21 de Outubro de 2026 (13h às 18h)
-    { date: new Date(2026, 9, 21), startHour: 13, endHour: 18 },
-  ];
+  // Terça-feira, 20 de Outubro de 2026 (09h em diante -> configurado até 18h)
+  { date: new Date(2026, 9, 20), startHour: 9, endHour: 18 },
 
-function generateTimeSlots(startHour: number, endHour: number): string[] {
+  // Quarta-feira, 21 de Outubro de 2026 (13h às 18h)
+  { date: new Date(2026, 9, 21), startHour: 13, endHour: 18 },
+];
+
+function generateTimeSlots(
+  startHour: number,
+  endHour: number,
+  interval: number = 60
+): string[] {
   const slots: string[] = [];
   for (let h = startHour; h < endHour; h++) {
     slots.push(`${String(h).padStart(2, "0")}:00`);
+    // Se o intervalo for 30, adicionamos a meia hora
+    if (interval === 30) {
+      slots.push(`${String(h).padStart(2, "0")}:30`);
+    }
   }
   return slots;
 }
@@ -54,9 +70,8 @@ function isAvailableDate(date: Date): boolean {
 function getTimeSlotsForDate(date: Date): string[] {
   const schedules = AVAILABLE_SCHEDULE.filter((s) => isSameDay(s.date, date));
   if (schedules.length === 0) return [];
-
   return schedules.flatMap((schedule) =>
-    generateTimeSlots(schedule.startHour, schedule.endHour),
+    generateTimeSlots(schedule.startHour, schedule.endHour, schedule.interval)
   );
 }
 
@@ -75,6 +90,10 @@ export function BookingSection() {
     email: "",
     whatsapp: "",
   });
+
+  // Verifica se a data selecionada é o dia especial de cortesia (14/10/2026)
+  const isCortesia =
+    selectedDate && isSameDay(selectedDate, new Date(2026, 9, 14));
 
   const timeSlots = useMemo(() => {
     if (!selectedDate) return [];
@@ -149,7 +168,7 @@ export function BookingSection() {
   const handleCopyPix = () => {
     navigator.clipboard.writeText(PIX_PAYLOAD);
     alert(
-      "Código Pix copiado com sucesso! Abra a app do seu banco e escolha a opção 'Pix Copia e Cola'.",
+      "Código Pix copiado com sucesso! Abra a app do seu banco e escolha a opção 'Pix Copia e Cola'."
     );
   };
 
@@ -212,31 +231,33 @@ export function BookingSection() {
               foi pré-agendada.
             </p>
 
-            <div className="bg-secondary/50 p-6 rounded-xl border border-gold/20 mb-8">
-              <p className="text-sm text-foreground mb-4 font-medium">
-                Para confirmar definitivamente, realize o pagamento via Pix
-                Copia e Cola:
-              </p>
-
-              <div className="flex flex-col gap-3">
-                <code className="text-xs bg-background p-3 rounded-md border border-border break-all text-left text-muted-foreground select-all">
-                  {PIX_PAYLOAD}
-                </code>
-
-                <button
-                  onClick={handleCopyPix}
-                  className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
-                >
-                  <Copy className="w-5 h-5" />
-                  Copiar Código Pix
-                </button>
+            {/* Só exibe os dados do PIX se NÃO for cortesia */}
+            {!isCortesia && (
+              <div className="bg-secondary/50 p-6 rounded-xl border border-gold/20 mb-8">
+                <p className="text-sm text-foreground mb-4 font-medium">
+                  Para confirmar definitivamente, realize o pagamento via Pix
+                  Copia e Cola:
+                </p>
+                <div className="flex flex-col gap-3">
+                  <code className="text-xs bg-background p-3 rounded-md border border-border break-all text-left text-muted-foreground select-all">
+                    {PIX_PAYLOAD}
+                  </code>
+                  <button
+                    onClick={handleCopyPix}
+                    className="w-full bg-emerald-600 hover:bg-emerald-700 text-white font-semibold py-3 px-6 rounded-lg transition-colors flex items-center justify-center gap-2"
+                  >
+                    <Copy className="w-5 h-5" />
+                    Copiar Código Pix
+                  </button>
+                </div>
               </div>
-            </div>
+            )}
 
             <p className="text-muted-foreground text-sm mb-8">
               Enviamos os detalhes para o seu e-mail:{" "}
               <strong className="text-foreground">{formData.email}</strong>.
             </p>
+
             <button
               onClick={handleReset}
               className="text-gold/70 hover:text-gold text-sm underline underline-offset-4 transition-colors"
@@ -363,6 +384,7 @@ export function BookingSection() {
                     Selecione o horário
                   </h3>
                 </div>
+
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
                   {timeSlots.map((time) => (
                     <button
@@ -461,14 +483,13 @@ export function BookingSection() {
                     </span>
                     <div className="text-right">
                       <span className="text-gold text-2xl font-serif font-semibold block">
-                        R$ 500,00
+                        {isCortesia ? "Cortesia" : "R$ 500,00"}
                       </span>
                     </div>
                   </div>
-
                   {/* Detalhes de Duração e Formato logo abaixo do valor */}
                   <div className="flex flex-col items-end gap-1 mt-1 text-sm text-muted-foreground">
-                    <span>Duração: 1h</span>
+                    <span>Duração: {isCortesia ? "30 min" : "1h"}</span>
                     <span>Formato: online ou presencial (café)</span>
                   </div>
                 </div>
@@ -478,8 +499,12 @@ export function BookingSection() {
                   disabled={isLoading}
                   className="w-full shimmer-btn text-background font-semibold py-4 rounded-lg text-lg tracking-wide transition-all duration-300 hover:scale-[1.02] hover:shadow-[0_0_40px_rgba(184,149,106,0.3)] flex items-center justify-center gap-3 disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  <QrCode className="w-5 h-5" />
-                  {isLoading ? "Processando..." : "Confirmar e Pagar via Pix"}
+                  {!isCortesia && <QrCode className="w-5 h-5" />}
+                  {isLoading
+                    ? "Processando..."
+                    : isCortesia
+                      ? "Confirmar Agendamento"
+                      : "Confirmar e Pagar via Pix"}
                 </button>
               </div>
             </motion.div>
