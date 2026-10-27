@@ -22,29 +22,34 @@ import {
 const PIX_PAYLOAD =
   "00020126720014br.gov.bcb.pix0114124749050001820232Cafe Estrategico com Malu Fontes5204000053039865406500.005802BR5918IDEALE CONSULTORIA6005NATAL62290525ciekYz7mCDZcI9VHLOZ4fxYY96304D698";
 
-// Datas e horários disponíveis em Outubro de 2026
-// Adicionamos 'interval' opcional para suportar agendamentos de 30 min
+// Datas e horários disponíveis
 const AVAILABLE_SCHEDULE: {
   date: Date;
   startHour: number;
   endHour: number;
   interval?: number;
 }[] = [
-  // Terça-feira, 06 de Outubro de 2026 (11h às 13h, 14h às 16h)
+  // --- OUTUBRO ---
   { date: new Date(2026, 9, 6), startHour: 11, endHour: 13 },
   { date: new Date(2026, 9, 6), startHour: 14, endHour: 16 },
-
-  // Quarta-feira, 07 de Outubro de 2026 (09h às 11h)
   { date: new Date(2026, 9, 7), startHour: 9, endHour: 11 },
-
-  // NOVA DATA: 14 de Outubro de 2026 (10h às 17h, de 30 em 30 minutos)
   { date: new Date(2026, 9, 14), startHour: 10, endHour: 17, interval: 30 },
-
-  // Terça-feira, 20 de Outubro de 2026 (09h em diante -> configurado até 18h)
   { date: new Date(2026, 9, 20), startHour: 9, endHour: 18 },
-
-  // Quarta-feira, 21 de Outubro de 2026 (13h às 18h)
   { date: new Date(2026, 9, 21), startHour: 13, endHour: 18 },
+
+  // --- NOVEMBRO ---
+  // Dia 04 de Novembro de 2026 (11h e 12h)
+  { date: new Date(2026, 10, 4), startHour: 11, endHour: 13 },
+  
+  // Dia 10 de Novembro de 2026 (11h, 14h e 16h)
+  { date: new Date(2026, 10, 10), startHour: 11, endHour: 12 },
+  { date: new Date(2026, 10, 10), startHour: 14, endHour: 15 },
+  { date: new Date(2026, 10, 10), startHour: 16, endHour: 17 },
+  
+  // Dia 17 de Novembro de 2026 (11h, 14h e 16h)
+  { date: new Date(2026, 10, 17), startHour: 11, endHour: 12 },
+  { date: new Date(2026, 10, 17), startHour: 14, endHour: 15 },
+  { date: new Date(2026, 10, 17), startHour: 16, endHour: 17 },
 ];
 
 function generateTimeSlots(
@@ -55,7 +60,6 @@ function generateTimeSlots(
   const slots: string[] = [];
   for (let h = startHour; h < endHour; h++) {
     slots.push(`${String(h).padStart(2, "0")}:00`);
-    // Se o intervalo for 30, adicionamos a meia hora
     if (interval === 30) {
       slots.push(`${String(h).padStart(2, "0")}:30`);
     }
@@ -124,7 +128,6 @@ export function BookingSection() {
     }
 
     setIsLoading(true);
-
     try {
       const response = await fetch("/api/send-booking", {
         method: "POST",
@@ -277,7 +280,6 @@ export function BookingSection() {
       </div>
 
       <div className="max-w-4xl mx-auto">
-        {/* Bloco de Posicionamento Premium */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -346,7 +348,7 @@ export function BookingSection() {
                   selected={selectedDate}
                   onSelect={handleDateSelect}
                   locale={ptBR}
-                  defaultMonth={new Date(2026, 9)} // Abre diretamente em Outubro (9)
+                  defaultMonth={new Date(2026, 10)} // Abre diretamente em Novembro
                   disabled={(date) => !isAvailableDate(date)}
                   className="[--cell-size:--spacing(10)] md:[--cell-size:--spacing(12)]"
                   classNames={{
@@ -384,7 +386,6 @@ export function BookingSection() {
                     Selecione o horário
                   </h3>
                 </div>
-
                 <div className="grid grid-cols-2 md:grid-cols-3 gap-3 mt-6">
                   {timeSlots.map((time) => (
                     <button
@@ -487,7 +488,6 @@ export function BookingSection() {
                       </span>
                     </div>
                   </div>
-                  {/* Detalhes de Duração e Formato logo abaixo do valor */}
                   <div className="flex flex-col items-end gap-1 mt-1 text-sm text-muted-foreground">
                     <span>Duração: {isCortesia ? "30 min" : "1h"}</span>
                     <span>Formato: online ou presencial (café)</span>
